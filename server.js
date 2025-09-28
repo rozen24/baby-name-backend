@@ -19,7 +19,7 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "https://baby-name-frontend.onrender.com", credentials: true })); // Vite frontend
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true })); // Vite frontend
 app.use(express.json());
 
 // Routes

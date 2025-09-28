@@ -1,5 +1,5 @@
 import express from "express";
-import { addBabyName, getBabyNames, updateBabyName, deleteBabyName , bulkImportNames} from "../controllers/babyNameController.js";
+import { addBabyName, getBabyNames, updateBabyName, deleteBabyName , bulkImportNames, exportNames} from "../controllers/babyNameController.js";
 import { protect, superadminOnly } from "../middleware/authMiddleware.js";
 import multer from "multer";
 
@@ -11,6 +11,7 @@ const upload = multer({ dest: "uploads/" });
 // ✅ CRUD Routes
 router.post("/", protect, addBabyName);
 router.get("/", getBabyNames);
+router.get("/export", exportNames);
 router.put("/:id", protect, updateBabyName);
 router.delete("/:id", protect, superadminOnly, deleteBabyName);
 
