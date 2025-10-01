@@ -1,28 +1,26 @@
 import BabyName from "../models/BabyName.js";
 import Category from "../models/Category.js";
-import Origin from "../models/Origin.js";
+import Alphabet from "../models/Alphabet.js";
 import fs from "fs";
 import csv from "csv-parser";
 import { Parser } from '@json2csv/plainjs';
 
 // ➕ Add Name
 export const addBabyName = async (req, res) => {
-
-  
-
   try {
-    let { name, gender, category, origin, meaning } = req.body;
+    let { name, gender, category, alphabet, meaning, description } = req.body;
 
-    // If category/origin is empty string, set to null
+    // If category/alphabet is empty string, set to null
     category = category || null;
-    origin = origin || null;
+    alphabet = alphabet || null;
 
     const babyName = new BabyName({
       name,
       gender,
       category,
-      origin,
+      alphabet,
       meaning,
+      description,
       createdBy: req.user.id
     });
     await babyName.save();
@@ -35,20 +33,20 @@ export const addBabyName = async (req, res) => {
 // 📖 Get All Names (with filters + search)
 export const getBabyNames = async (req, res) => {
   try {
-    const { search, gender, category, origin, page = 1, limit = 50 } = req.query;
+    const { search, gender, category, alphabet, page = 1, limit = 50 } = req.query;
     const filter = {};
 
     if (search) filter.name = { $regex: search, $options: "i" };
     if (gender) filter.gender = gender;
     if (category) filter.category = category;
-    if (origin) filter.origin = origin;
+    if (alphabet) filter.alphabet = alphabet;
 
     const skip = (page - 1) * limit;
 
     const [names, total] = await Promise.all([
       BabyName.find(filter)
         .populate("category", "name")
-        .populate("origin", "name")
+        .populate("alphabet", "name")
         .sort({ createdAt: -1 }) // Newest first
         .skip(skip)
         .limit(Number(limit)),
@@ -60,7 +58,6 @@ export const getBabyNames = async (req, res) => {
     res.status(500).json({ message: "Error fetching names", error: err.message });
   }
 };
-
 
 // ✏️ Update Name
 export const updateBabyName = async (req, res) => {
@@ -130,7 +127,7 @@ export const bulkImportNames = async (req, res) => {
               const g = r.gender.trim().toLowerCase();
               if (["boy", "ছেলে"].includes(g)) {
                 gender = "boy";
-              } else if (["girl", "মেয়ে", "মেয়"].includes(g)) {
+              } else if (["girl", "মেয়ে", "মেয়"].includes(g)) {
                 gender = "girl";
               }
             }
@@ -142,21 +139,22 @@ export const bulkImportNames = async (req, res) => {
               continue;
             }
 
-            // 🔹 Resolve category & origin
+            // 🔹 Resolve category & alphabet
             const categoryDoc = r.category
               ? await Category.findOne({ name: new RegExp(`^${r.category}$`, "i") })
               : null;
 
-            const originDoc = r.origin
-              ? await Origin.findOne({ name: new RegExp(`^${r.origin}$`, "i") })
+            const alphabetDoc = r.alphabet
+              ? await Alphabet.findOne({ name: new RegExp(`^${r.alphabet}$`, "i") })
               : null;
 
             newNames.push({
               name,
               gender : gender ? gender : null, // normalized
               category: categoryDoc ? categoryDoc._id : null,
-              origin: originDoc ? originDoc._id : null,
+              alphabet: alphabetDoc ? alphabetDoc._id : null,
               meaning: r.meaning?.trim() || "",
+              description: r.description?.trim() || "",
             });
           }
 
@@ -185,23 +183,23 @@ export const bulkImportNames = async (req, res) => {
   }
 };
 
-
 export const exportNames = async (req, res) => {
   try {
     const names = await BabyName.find({})
       .populate("category", "name")
-      .populate("origin", "name");
+      .populate("alphabet", "name");
 
     // Map DB -> Bengali gender
     const formatted = names.map((n) => ({
       name: n.name,
-      gender: n.gender === "boy" ? "ছেলে" : n.gender === "girl" ? "মেয়ে" : "",
+      gender: n.gender === "boy" ? "ছেলে" : n.gender === "girl" ? "মেয়ে" : "",
       category: n.category?.name || "",
-      origin: n.origin?.name || "",
+      alphabet: n.alphabet?.name || "",
       meaning: n.meaning || "",
+      description: n.description || "",
     }));
 
-    const fields = ["name", "gender", "category", "origin", "meaning"];
+    const fields = ["name", "gender", "category", "alphabet", "meaning", "description"];
     const parser = new Parser({ fields });
     const csv = parser.parse(formatted);
 
@@ -213,5 +211,3 @@ export const exportNames = async (req, res) => {
     res.status(500).json({ message: "Error exporting CSV", error: error.message });
   }
 };
-
-

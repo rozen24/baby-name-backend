@@ -34,7 +34,7 @@ import {
 const router = express.Router();
 
 router.route("/")
-  .get(protect, getCategories)
+  .get(getCategories) // Remove protect middleware for public access
   .post(protect, addCategory);
 
 router.route("/:id")

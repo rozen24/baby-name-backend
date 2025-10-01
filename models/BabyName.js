@@ -13,8 +13,9 @@ const babyNameSchema = new mongoose.Schema({
     enum: Object.keys(GENDERS) // ["boy", "girl"]
   },
   category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-  origin: { type: mongoose.Schema.Types.ObjectId, ref: "Origin" },
+  alphabet: { type: mongoose.Schema.Types.ObjectId, ref: "Alphabet" },
   meaning: { type: String },
+  description: { type: String },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, { timestamps: true });
 

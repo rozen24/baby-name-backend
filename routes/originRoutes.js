@@ -1,5 +1,6 @@
+// Legacy compatibility: route handler proxies to alphabet controller
 import express from "express";
-import { addOrigin, getOrigins, updateOrigin, deleteOrigin } from "../controllers/originController.js";
+import { addAlphabet as addOrigin, getAlphabets as getOrigins, updateAlphabet as updateOrigin, deleteAlphabet as deleteOrigin } from "../controllers/alphabetController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();

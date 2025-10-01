@@ -10,7 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 // import nameRoutes from "./routes/nameRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import babyNameRoutes from "./routes/babyNameRoutes.js";
-import originRoutes from "./routes/originRoutes.js";
+import alphabetRoutes from "./routes/alphabetRoutes.js";
 
 
 dotenv.config();
@@ -29,7 +29,8 @@ app.use("/api/users", userRoutes);
 // app.use("/api/names", nameRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/names", babyNameRoutes);
-app.use("/api/origins", originRoutes);
+// Alphabets route only (no legacy origins route)
+app.use("/api/alphabets", alphabetRoutes);
 
 app.get("/health", async (req, res) => {
   res.send({ message: "health OK!" });
